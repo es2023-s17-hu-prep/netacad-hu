@@ -148,7 +148,9 @@ export const useData = (): Data => {
 	const posts = data ? data?.allPosts.map((post) => {
 		const postType =  PostType[post.postType.name as keyof typeof PostType]
 		const content = post.content ? render(post.content) : null;
-		return {...post, content, postType}
+		const headlineLong = post.headlineLong ? render(post.headlineLong) : null;
+		const headlineShort = post.headlineShort ? render(post.headlineShort) : null;
+		return {...post, content, headlineShort, headlineLong, postType}
 	}) : [];
 	return { menus, posts, dashboardElements, sliderElements, status, error };
 };

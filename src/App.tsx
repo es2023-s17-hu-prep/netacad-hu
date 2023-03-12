@@ -50,12 +50,9 @@ function App() {
       <h2>Hírek</h2>
       {news && news.map((news) => (
         <div key={news.id}>
+          <img src={news.featuredImage.url} alt={news.title} />
           <h3>{news.title}</h3>
-          <h4>{news.title}</h4>
-          {news.headlineIsNotDisplaying && (
-            <div dangerouslySetInnerHTML={{ __html: news.headlineLong }} />
-          )}
-          <div dangerouslySetInnerHTML={{ __html: news.content }} />
+          <div dangerouslySetInnerHTML={{ __html: news.headlineShort }} />
         </div>
       ))}
 
