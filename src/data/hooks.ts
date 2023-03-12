@@ -35,28 +35,67 @@ const query = `query {
       }
       headlineIsNotDisplaying
       date
-
     }
+	allDashboardElements {
+		id
+		title
+		content {
+		  value
+		}
+		featuredImage {
+		  url
+		}
+	  }
+	  allSliderElements {
+		id
+		title
+		content {
+		  value
+		}
+		featuredImage {
+		  url
+		}
+		isFeauturedImageLeft
+	  }	  
 }
       `;
-interface Data {
+interface DatoData {
 	allMenus: Menu[];
 	allPosts: PostDato[];
+	allDashboardElements: DashboardElement[];
+	allSliderElements: SliderElement[];
 }
 
-interface Menu {
+interface Data {
+	menus: Menu[];
+	posts: Post[];
+	sliderElements: SliderElement[];
+	dashboardElements: DashboardElement[];
+	status: Status;
+	error: object | null;
+}
+export interface DashboardElement {
+	id: string;
+	title: string;
+	content: any;
+	featuredImage: any;
+}
+export interface SliderElement extends DashboardElement {
+	isFeauturedImageLeft: boolean;
+}
+
+export interface Menu {
 	id: string;
 	title: string;
 	link: string;
 	submenu: Submenu[];
 }
 
-interface Submenu {
+export interface Submenu {
 	id: string;
 	title: string;
 	link: string;
 }
-
 interface PostDato {
 	id: string;
 	postType: {name: string};
@@ -72,29 +111,46 @@ interface PostDato {
 	date: string;
 }
 
-interface Post extends Omit<PostDato, 'postType'> {
+export interface Post extends Omit<PostDato, 'postType'> {
 	postType: PostType;
 }
 
-enum PostType {
+export enum PostType {
 	page = "page",
 	news = "news"
 }
 
-export const useData = (): {menus: Menu[], posts: Post[]} => {
-	const { data: datoData } = useQuerySubscription({
+export enum Status {
+	connecting = "connecting",
+	connected = "connected",
+	closed = "closed"
+}
+
+export const useData = (): Data => {
+	const { data: datoData, error, status: datoStatus } = useQuerySubscription({
 		query: query,
 		variables: { first: 10 },
 		token: apiToken,
 	  });
-	const data: Data = datoData;
+	if (error) console.log({error})
+	const data: DatoData = datoData;
 	const menus = data?.allMenus;
+	const status: Status = datoStatus === "connecting" ? Status.connecting : datoStatus === "connected" ? Status.connected : Status.closed;
+	const dashboardElements = data ? data.allDashboardElements.map((dashboardElement) => {
+		const content = dashboardElement.content ? render(dashboardElement.content) : null;
+		return {...dashboardElement, content}
+	}) : [];
+	const sliderElements = data ? data.allSliderElements.map((sliderElement) => {
+		const content = sliderElement.content ? render(sliderElement.content) : null;
+		return {...sliderElement, content}
+	}) : [];
+
 	const posts = data ? data?.allPosts.map((post) => {
 		const postType =  PostType[post.postType.name as keyof typeof PostType]
 		const content = post.content ? render(post.content) : null;
 		return {...post, content, postType}
 	}) : [];
-	return { menus, posts: posts };
+	return { menus, posts, dashboardElements, sliderElements, status, error };
 };
 
 export const useMenus = () => {
@@ -111,6 +167,26 @@ export const useNews = () => {
 	const news = usePosts(PostType.news);
 	return news;
 };
+
+export const useDashboardElements = () => {
+	const { dashboardElements } = useData(); 
+	return dashboardElements;
+}
+
+export const useSliderElements = () => {
+	const { sliderElements } = useData(); 
+	return sliderElements;
+}
+
+export const useStatus = () => {
+	const { status } = useData();
+	return status;
+}
+
+export const useError = () => {
+	const { error } = useData();
+	return error;
+}
 
 const usePosts = (postType: PostType) => {
 	const { posts } = useData();
