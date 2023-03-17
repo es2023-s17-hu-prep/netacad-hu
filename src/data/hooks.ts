@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { createContext, ReactElement, useContext } from "react";
 import { useQuerySubscription, StructuredText } from "react-datocms";
 import { render } from 'datocms-structured-text-to-html-string';
 
@@ -126,20 +126,35 @@ export enum Status {
 	closed = "closed"
 }
 
+const emptyData: Data = {
+	menus: [],
+	posts: [],
+	sliderElements: [],
+	dashboardElements: [],
+	status: Status.closed,
+	error: null
+};
+
+export const DataContext = createContext<Data>(emptyData);
+
 export const useData = (): Data => {
 	const { data: datoData, error, status: datoStatus } = useQuerySubscription({
 		query: query,
-		variables: { first: 10 },
 		token: apiToken,
 	  });
-	if (error) console.log({error})
+	if (error) {
+		console.log({error})
+		return emptyData
+	}
 	const data: DatoData = datoData;
 	const menus = data?.allMenus;
 	const status: Status = datoStatus === "connecting" ? Status.connecting : datoStatus === "connected" ? Status.connected : Status.closed;
+	
 	const dashboardElements = data ? data.allDashboardElements.map((dashboardElement) => {
 		const content = dashboardElement.content ? render(dashboardElement.content) : null;
 		return {...dashboardElement, content}
 	}) : [];
+
 	const sliderElements = data ? data.allSliderElements.map((sliderElement) => {
 		const content = sliderElement.content ? render(sliderElement.content) : null;
 		return {...sliderElement, content}
@@ -152,11 +167,12 @@ export const useData = (): Data => {
 		const headlineShort = post.headlineShort ? render(post.headlineShort) : null;
 		return {...post, content, headlineShort, headlineLong, postType}
 	}) : [];
+
 	return { menus, posts, dashboardElements, sliderElements, status, error };
 };
 
 export const useMenus = () => {
-	const { menus } = useData();
+	const { menus } = useContext(DataContext);
 	return menus;
 };
 
@@ -171,27 +187,27 @@ export const useNews = () => {
 };
 
 export const useDashboardElements = () => {
-	const { dashboardElements } = useData(); 
+	const { dashboardElements } = useContext(DataContext); 
 	return dashboardElements;
 }
 
 export const useSliderElements = () => {
-	const { sliderElements } = useData(); 
+	const { sliderElements } = useContext(DataContext);
 	return sliderElements;
 }
 
 export const useStatus = () => {
-	const { status } = useData();
+	const { status } = useContext(DataContext);
 	return status;
 }
 
 export const useError = () => {
-	const { error } = useData();
+	const { error } = useContext(DataContext);
 	return error;
 }
 
 const usePosts = (postType: PostType) => {
-	const { posts } = useData();
+	const { posts } = useContext(DataContext);
 	const postFilteredByPostType = posts ? posts.filter((post) => post.postType === postType) : [];
 	const post = postFilteredByPostType ? postFilteredByPostType.map((post) => {
 		const {postType, ...rest} = post
