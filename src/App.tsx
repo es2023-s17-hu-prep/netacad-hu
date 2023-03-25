@@ -1,7 +1,16 @@
-function App() {
+import './App.css'
+import {Header} from "./layout/Header";
+import {Content} from "./layout/Content";
+import {Footer} from "./layout/Footer";
 
-  return (
-    <h1>Netacad.hu</h1>
-  )
+/**
+ * Root component of the application
+ */
+function App() {
+  return <>
+    <Header />
+    <Content />
+    <Footer />
+  </>
 }
 export default App

@@ -1,6 +1,6 @@
-import { createContext, ReactElement, useContext } from "react";
-import { useQuerySubscription, StructuredText } from "react-datocms";
-import { render } from 'datocms-structured-text-to-html-string';
+import {createContext, useContext} from "react";
+import {useQuerySubscription} from "react-datocms";
+import {render} from 'datocms-structured-text-to-html-string';
 
 const apiToken = "1ec4b2655bdf27fe8b5c97c43c3e80";
 const query = `query {
@@ -64,6 +64,13 @@ interface DatoData {
 	allPosts: PostDato[];
 	allDashboardElements: DashboardElement[];
 	allSliderElements: SliderElement[];
+}
+
+const emptyDatoData: DatoData = {
+	allMenus: [],
+	allDashboardElements: [],
+	allPosts: [],
+	allSliderElements: [],
 }
 
 interface Data {
@@ -146,7 +153,7 @@ export const useData = (): Data => {
 		console.log({error})
 		return emptyData
 	}
-	const data: DatoData = datoData;
+	const data: DatoData = datoData ?? emptyDatoData;
 	const menus = data?.allMenus;
 	const status: Status = datoStatus === "connecting" ? Status.connecting : datoStatus === "connected" ? Status.connected : Status.closed;
 	
@@ -171,7 +178,7 @@ export const useData = (): Data => {
 	return { menus, posts, dashboardElements, sliderElements, status, error };
 };
 
-export const useMenus = () => {
+export const useMenus = (): Menu[] => {
 	const { menus } = useContext(DataContext);
 	return menus;
 };
