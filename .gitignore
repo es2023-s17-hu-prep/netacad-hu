@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+backend-laravel/vendor
+frontend/node_modules

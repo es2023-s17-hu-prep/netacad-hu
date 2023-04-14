@@ -1,7 +1,7 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import {useQuerySubscription} from "react-datocms";
 import {render} from 'datocms-structured-text-to-html-string';
-
+const API_URL = "http://backend-laravel.localhost/api/"
 const apiToken = "1ec4b2655bdf27fe8b5c97c43c3e80";
 const query = `query {
     allMenus {
@@ -193,7 +193,7 @@ function useApi<T>(url: string): T[] {
     const [data, setData] = useState<T[]>([]);
 
     async function loadData() {
-        const result = await fetch("http://localhost:8000/api/" + url);
+        const result = await fetch(API_URL + url);
         const d = await result.json() as T[];
         setData(d);
     }
