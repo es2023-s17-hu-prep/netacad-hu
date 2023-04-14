@@ -79,10 +79,20 @@ header.shrink .menu .item {
   width: 100%
 }
 
+.slides {
+  display: flex;
+  overflow: hidden;
+}
+
 .slide {
   width: 100%;
   height: 600px;
   display: flex;
+  flex-shrink: 0;
+}
+
+.slide.reverse{
+  flex-direction: row-reverse;
 }
 
 .slide > *:first-child {
@@ -133,6 +143,10 @@ header.shrink .menu .item {
   height: 6px;
   background: white;
   padding: 0;
+}
+
+.slider .steps .step.active {
+  background: #535bf2;
 }
 
 section.news {
