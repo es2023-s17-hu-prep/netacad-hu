@@ -23,6 +23,8 @@ services:
         environment:
             - MARIADB_ROOT_PASSWORD=root
             - MARIADB_DATABASE=netacadhu
+        ports:
+            - "3306:3306"
         volumes:
             - /var/lib/mysql
     phpmyadmin:
